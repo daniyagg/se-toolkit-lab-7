@@ -1,5 +1,23 @@
 # LMS API
 
+<h2>Table of contents</h2>
+
+- [About the LMS API](#about-the-lms-api)
+- [LMS API key](#lms-api-key)
+  - [`<lms-api-key>` placeholder](#lms-api-key-placeholder)
+- [LMS API host port](#lms-api-host-port)
+  - [`<lms-api-host-port>` placeholder](#lms-api-host-port-placeholder)
+- [LMS API base URL](#lms-api-base-url)
+  - [`<lms-api-base-url>` placeholder](#lms-api-base-url-placeholder)
+- [`Caddy`](#caddy)
+  - [`Caddyfile`](#caddyfile)
+- [`Caddy` duties](#caddy-duties)
+  - [Listen on the specific port](#listen-on-the-specific-port)
+  - [Forward requests to the backend](#forward-requests-to-the-backend)
+  - [Forward requests to the `Qwen Code` API](#forward-requests-to-the-qwen-code-api)
+  - [Forward requests to `pgAdmin`](#forward-requests-to-pgadmin)
+  - [Serve frontend files](#serve-frontend-files)
+
 ## About the LMS API
 
 ## LMS API key
