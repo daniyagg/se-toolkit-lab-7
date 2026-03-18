@@ -116,7 +116,7 @@ When you run a command in the [terminal](./vs-code.md#vs-code-terminal), the sys
 
 ## `.env` file
 
-We call `.env` file ("dotenv file") a file that contains a list of [environment variables](#environment-variable) in the `<env-variable-name>=<env-variable-value>` format.
+A `.env` file ("dotenv file") is a file that contains a list of [environment variables](#environment-variable) in the `<env-variable-name>=<env-variable-value>` format.
 
 Examples:
 
