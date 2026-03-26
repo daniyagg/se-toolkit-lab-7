@@ -95,3 +95,67 @@ By the end of this lab, you should be able to say:
 ### Optional
 
 1. [Flutter Web Chatbot](./lab/tasks/optional/task-1.md)
+
+## Deploy
+
+The bot runs as a Docker container alongside the backend on your VM.
+
+### Prerequisites
+
+- VM with Docker and Docker Compose installed
+- `.env.docker.secret` configured with all required variables
+- `.env.bot.secret` with bot token and LLM credentials (for local testing)
+
+### Environment variables
+
+The bot service requires these variables in `.env.docker.secret`:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `BOT_TOKEN` | Telegram bot token from @BotFather | `123456:ABCdef...` |
+| `LMS_API_KEY` | Backend API key for authentication | `my-secret-key` |
+| `LLM_API_KEY` | Qwen Code API key | `sk-...` |
+| `LLM_API_BASE_URL` | LLM API endpoint | `http://host.docker.internal:42005/v1` |
+| `LLM_API_MODEL` | Model name | `coder-model` |
+
+> **Note:** `LLM_API_BASE_URL` must use `host.docker.internal` (not `localhost`) because the Qwen proxy runs on the host network, not inside the Docker network.
+
+### Deploy commands
+
+```terminal
+# On your VM, navigate to the project directory
+cd ~/se-toolkit-lab-7
+
+# Stop any running bot process (from previous nohup deployment)
+pkill -f "bot.py" 2>/dev/null || true
+
+# Build and start all services (backend, postgres, caddy, bot)
+docker compose --env-file .env.docker.secret up --build -d
+
+# Check all services are running
+docker compose --env-file .env.docker.secret ps
+
+# Check bot logs for errors
+docker compose --env-file .env.docker.secret logs bot --tail 50
+```
+
+### Verify deployment
+
+```terminal
+# Backend should still be healthy
+curl -sf http://localhost:42002/docs
+
+# Bot container should be running
+docker ps | grep bot
+
+# Test in Telegram: send /start, /health, or plain text like "what labs are available"
+```
+
+### Troubleshooting
+
+| Symptom | Solution |
+|---------|----------|
+| Bot container restarting | Check logs: `docker compose logs bot`. Usually missing env var or import error. |
+| `/health` fails | `LMS_API_BASE_URL` must be `http://backend:8000` (not `localhost`). |
+| LLM queries fail | Use `host.docker.internal:42005` in `LLM_API_BASE_URL`. |
+| Build fails at `uv sync` | Ensure `uv.lock` exists at project root. |
