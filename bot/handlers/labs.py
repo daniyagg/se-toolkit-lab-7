@@ -1,12 +1,37 @@
 """Handler for /labs command."""
 
+from services.lms_client import LMSClient
+
 
 def handle_labs() -> str:
     """Handle the /labs command.
     
     Returns:
-        List of available labs (placeholder for Task 2).
+        List of available labs from the real LMS API.
     """
-    # Task 2: Fetch real labs from LMS API GET /items
-    # For now, return a placeholder response
-    return "Available Labs:\n\n• Lab 1: Introduction\n• Lab 2: Basics\n• Lab 3: Intermediate\n• Lab 4: Advanced\n\nUse /scores <lab> to view your scores for a specific lab."
+    client = LMSClient()
+    result = client.get_items()
+    
+    if not result["success"]:
+        return f"Error fetching labs: {result['error']}"
+    
+    items = result["items"]
+    if not items:
+        return "No labs available."
+    
+    # Format labs from the API response
+    # Expected format: [{"id": 1, "title": "Lab 01...", "type": "lab", ...}, ...]
+    labs = []
+    for item in items:
+        item_type = item.get("type", "")
+        
+        # Only show items with type="lab"
+        if item_type == "lab":
+            item_id = str(item.get("id", ""))
+            item_title = item.get("title", item.get("name", item_id))
+            labs.append(f"• {item_title}")
+    
+    if not labs:
+        return "No labs available."
+    
+    return "Available Labs:\n\n" + "\n".join(labs) + "\n\nUse /scores <lab> to view scores for a specific lab."

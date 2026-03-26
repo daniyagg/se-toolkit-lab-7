@@ -1,12 +1,14 @@
 """Handler for /health command."""
 
+from services.lms_client import LMSClient
+
 
 def handle_health() -> str:
     """Handle the /health command.
     
     Returns:
-        Backend health status (placeholder for Task 2).
+        Backend health status from the real LMS API.
     """
-    # Task 2: Call LMS API to check real health status
-    # For now, return a placeholder response
-    return "Backend status: OK ✓\n\nThe LMS system is operational."
+    client = LMSClient()
+    result = client.health_check()
+    return result["message"]
