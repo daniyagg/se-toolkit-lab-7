@@ -5,7 +5,14 @@ They don't know about Telegram — same functions work from --test mode,
 unit tests, or the Telegram bot handler.
 """
 
-from bot.handlers.start import handle_start
+
+def handle_start() -> str:
+    """Handle the /start command. Returns a welcome message."""
+    return (
+        "👋 Welcome to the LMS Assistant Bot!\n\n"
+        "I can help you check your labs, scores, and health status.\n"
+        "Send /help to see all available commands."
+    )
 
 
 def handle_help() -> str:
