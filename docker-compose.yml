@@ -89,6 +89,24 @@ services:
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
 
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - lms-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - path: bot/.env.bot.secret
+        required: true
+    environment:
+      - LMS_API_BASE_URL=http://backend:8000
+      - LLM_API_BASE_URL=http://qwen-code-api-qwen-code-api-1:8080/v1
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
 

@@ -77,6 +77,59 @@ By the end of this lab, you should be able to say:
 2. I can ask it questions in plain language and it fetches the right data.
 3. I used an AI coding agent to plan and build the whole thing.
 
+## Deploy
+
+### Prerequisites
+
+- Docker and Docker Compose installed on the VM
+- `.env.docker.secret` filled with required values:
+  - `BOT_TOKEN` — Telegram bot token from BotFather
+  - `LMS_API_KEY` — backend API key
+  - `LLM_API_KEY`, `LLM_API_BASE_URL`, `LLM_API_MODEL` — LLM credentials
+  - `LLM_API_BASE_URL` must be `http://host.docker.internal:42005/v1` (not `localhost`)
+
+### Start
+
+```bash
+cd ~/se-toolkit-lab-7
+
+# Stop any running nohup bot process
+pkill -f "bot.py" 2>/dev/null
+
+# Build and start all services
+docker compose --env-file .env.docker.secret up --build -d
+
+# Verify all services are running
+docker compose --env-file .env.docker.secret ps
+```
+
+You should see `bot`, `backend`, `postgres`, `caddy`, and `pgadmin` services running.
+
+### Verify
+
+```bash
+# Check bot container logs for successful startup
+docker compose --env-file .env.docker.secret logs bot --tail 20
+
+# Backend should still be healthy
+curl -sf http://localhost:42002/docs
+
+# Test the bot in Telegram:
+#   /start — welcome message with inline buttons
+#   /health — backend status
+#   "what labs are available?" — LLM-powered response
+#   "which lab has the lowest pass rate?" — multi-step reasoning
+```
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Bot container restarting | `docker compose logs bot` — check for missing env vars or import errors |
+| `/health` fails | `LMS_API_BASE_URL` must be `http://backend:8000` (Docker service name) |
+| LLM queries fail | `LLM_API_BASE_URL` must use `host.docker.internal`, not `localhost` |
+| "BOT_TOKEN is required" | Ensure `BOT_TOKEN` is set in `.env.docker.secret` |
+
 ## Tasks
 
 ### Prerequisites
