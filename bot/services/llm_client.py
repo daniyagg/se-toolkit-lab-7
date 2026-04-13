@@ -166,17 +166,12 @@ TOOL_SCHEMAS = [
 # ── System prompt ─────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = (
-    "You are an LMS (Learning Management System) assistant. "
-    "You help users get information about labs, tasks, students, and scores. "
-    "You have access to tools that fetch data from the backend API. "
-    "When a user asks a question, call the appropriate tool(s) to get the data, "
-    "then summarize the results in a clear, friendly way with specific numbers. "
-    "If the user asks something that requires data from multiple labs or groups, "
-    "call tools for each one and compare the results. "
-    "If the user sends a greeting, respond warmly. "
-    "If the user sends gibberish or something you don't understand, "
-    "explain what you can help with and list some example questions. "
-    "Always use tools to get real data — don't make up answers."
+    "You are an LMS assistant. "
+    "Use tools to get real data from the backend API. "
+    "When asked a question, call the right tool(s), then summarize the results with specific numbers. "
+    "For greetings, respond warmly. For unclear input, explain what you can do. "
+    "Always use tools — don't make up answers. "
+    "Keep responses concise."
 )
 
 
@@ -349,10 +344,11 @@ class LLMClient:
             "model": self.model,
             "messages": messages,
             "tools": TOOL_SCHEMAS,
+            "max_tokens": 500,
         }
 
         try:
-            async with httpx.AsyncClient(timeout=120.0) as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.base_url}/chat/completions",
                     headers=self._headers(),
