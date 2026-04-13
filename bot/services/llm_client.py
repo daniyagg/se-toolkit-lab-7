@@ -344,7 +344,8 @@ class LLMClient:
             "model": self.model,
             "messages": messages,
             "tools": TOOL_SCHEMAS,
-            "max_tokens": 500,
+            "max_tokens": 200,
+            "temperature": 0.1,
         }
 
         try:
