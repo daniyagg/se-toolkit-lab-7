@@ -71,3 +71,183 @@ class APIClient:
             return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
         except httpx.RequestError as e:
             return None, f"request failed: {e}"
+
+    def get_learners(self) -> tuple[list | None, str | None]:
+        """Fetch all enrolled learners.
+
+        Returns:
+            (learners, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/learners/",
+                headers=self._headers(),
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def get_scores(self, lab: str) -> tuple[list | None, str | None]:
+        """Fetch score distribution (4 buckets) for a specific lab.
+
+        Args:
+            lab: Lab identifier (e.g., "lab-04").
+
+        Returns:
+            (scores, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/analytics/scores",
+                headers=self._headers(),
+                params={"lab": lab},
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None, f"lab '{lab}' not found. Use /labs to see available labs."
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def get_timeline(self, lab: str) -> tuple[list | None, str | None]:
+        """Fetch submissions per day for a specific lab.
+
+        Args:
+            lab: Lab identifier (e.g., "lab-04").
+
+        Returns:
+            (timeline, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/analytics/timeline",
+                headers=self._headers(),
+                params={"lab": lab},
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None, f"lab '{lab}' not found. Use /labs to see available labs."
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def get_groups(self, lab: str) -> tuple[list | None, str | None]:
+        """Fetch per-group scores and student counts for a specific lab.
+
+        Args:
+            lab: Lab identifier (e.g., "lab-04").
+
+        Returns:
+            (groups, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/analytics/groups",
+                headers=self._headers(),
+                params={"lab": lab},
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None, f"lab '{lab}' not found. Use /labs to see available labs."
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def get_top_learners(
+        self, lab: str, limit: int = 10
+    ) -> tuple[list | None, str | None]:
+        """Fetch top N learners by score for a specific lab.
+
+        Args:
+            lab: Lab identifier (e.g., "lab-04").
+            limit: Number of top learners to return (default 10).
+
+        Returns:
+            (learners, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/analytics/top-learners",
+                headers=self._headers(),
+                params={"lab": lab, "limit": limit},
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None, f"lab '{lab}' not found. Use /labs to see available labs."
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def get_completion_rate(self, lab: str) -> tuple[dict | None, str | None]:
+        """Fetch completion rate percentage for a specific lab.
+
+        Args:
+            lab: Lab identifier (e.g., "lab-04").
+
+        Returns:
+            (completion_rate, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.get(
+                f"{self.base_url}/analytics/completion-rate",
+                headers=self._headers(),
+                params={"lab": lab},
+                timeout=10.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return None, f"lab '{lab}' not found. Use /labs to see available labs."
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
+
+    def trigger_sync(self) -> tuple[dict | None, str | None]:
+        """Trigger a data sync from the autochecker.
+
+        Returns:
+            (result, None) on success, or (None, error_message) on failure.
+        """
+        try:
+            response = httpx.post(
+                f"{self.base_url}/pipeline/sync",
+                headers=self._headers(),
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            return response.json(), None
+        except httpx.ConnectError:
+            return None, f"connection refused ({self.base_url}). Check that the services are running."
+        except httpx.HTTPStatusError as e:
+            return None, f"HTTP {e.response.status_code} {e.response.reason_phrase}. The backend service may be down."
+        except httpx.RequestError as e:
+            return None, f"request failed: {e}"
